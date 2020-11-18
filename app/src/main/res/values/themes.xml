@@ -1,0 +1,19 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.LeagueDex" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">#616161</item>
+        <item name="colorPrimaryVariant">#373737</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">#00838f</item>
+        <item name="colorSecondaryVariant">#005662</item>
+        <item name="colorSecondaryAlpha">@color/color_secondary_alpha</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <!-- Customize your theme here. -->
+
+        <item name="toolbarStyle">@style/Style.LeagueDex.Toolbar</item>
+    </style>
+</resources>

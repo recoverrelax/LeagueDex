@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">LeagueDex</string>
+
+    <string name="frag_championlist_toolbar_title">Champions</string>
+</resources>
