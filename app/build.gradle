@@ -90,6 +90,7 @@ dependencies {
 
     // coil
     implementation "io.coil-kt:coil:1.0.0"
+    implementation "dev.chrisbanes.accompanist:accompanist-coil:0.3.3.1"
 
     // compose
     implementation("androidx.compose.runtime:runtime-dispatch:$compose_version")

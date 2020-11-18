@@ -1,7 +1,7 @@
-package com.recoverrelax.librarynetwork.di
+package com.greater.librarynetwork.di
 
+import com.greater.librarynetwork.PrivateApiService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
-import com.recoverrelax.librarynetwork.PrivateApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

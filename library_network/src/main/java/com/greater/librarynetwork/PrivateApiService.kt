@@ -1,6 +1,6 @@
-package com.recoverrelax.librarynetwork
+package com.greater.librarynetwork
 
-import com.recoverrelax.librarynetwork.model.ChampionListDto
+import com.greater.librarynetwork.model.ChampionListDto
 import retrofit2.http.GET
 
 interface PrivateApiService {

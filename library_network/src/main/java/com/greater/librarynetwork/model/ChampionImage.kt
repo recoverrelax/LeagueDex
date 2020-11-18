@@ -1,4 +1,4 @@
-package com.recoverrelax.librarynetwork.model
+package com.greater.librarynetwork.model
 
 import kotlinx.serialization.Serializable
 

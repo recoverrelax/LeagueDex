@@ -1,25 +1,24 @@
 package com.greater.leaguedex.ui.championlist
 
-import android.os.Bundle
-import android.view.View
+import androidx.compose.material.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.GridLayoutManager
-import com.greater.leaguedex.R
-import com.greater.leaguedex.databinding.FragChampionlistBinding
+import androidx.ui.tooling.preview.Preview
+import com.greater.leaguedex.composeble.component.ChampionRowModel
+import com.greater.leaguedex.composeble.component.championRowView
+import com.greater.leaguedex.composeble.theme.LeagueDexTheme
 import com.greater.leaguedex.mvvm.BaseFragment
-import com.greater.leaguedex.util.viewBinding
+import com.greater.leaguedex.util.LazyGridFor
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class ChampionListFrag :
-    BaseFragment<ChampionLisViewModel, ChampionListState>(R.layout.frag_championlist) {
+    BaseFragment<ChampionLisViewModel, ChampionListState>() {
     override val viewModel: ChampionLisViewModel by viewModels()
-    private val binding by viewBinding(FragChampionlistBinding::bind)
-
-    private val myAdapter = ChampionListAdapter()
-    private val myLayoutManager by lazy(LazyThreadSafetyMode.NONE) {
-        GridLayoutManager(this.context, 3)
-    }
 
     companion object {
         fun newInstance(): ChampionListFrag {
@@ -27,13 +26,35 @@ class ChampionListFrag :
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    private val itemList: MutableState<List<ChampionRowModel>> = mutableStateOf(emptyList())
 
-        with(binding.itemList) {
-            layoutManager = myLayoutManager
-            adapter = myAdapter
+    override val content: @Composable () -> Unit = {
+        LeagueDexTheme {
+            Surface(color = Color.Black) {
+                LazyGridFor(
+                    items = itemList.value,
+                    rows = 2,
+                    itemPadding = 0
+                ) { item, pos ->
+                    championRowView(
+                        model = item,
+                        click = {
+                            onItemClicked(item, pos)
+                        }
+                    )
+                }
+            }
         }
+    }
+
+    @Preview(showBackground = true)
+    @Composable
+    fun DefaultPreview() {
+        content()
+    }
+
+    private fun onItemClicked(model: ChampionRowModel, pos: Int) {
+        Timber.i("Clicked item: $model with pos: $pos")
     }
 
     override fun onStart() {
@@ -43,7 +64,9 @@ class ChampionListFrag :
 
     override fun render(viewState: ChampionListState) {
         when (viewState) {
-            is ChampionListState.UpdateItemList -> myAdapter.setAdapterItems(viewState.itemList)
+            is ChampionListState.UpdateItemList -> {
+                itemList.value = viewState.itemList
+            }
         }
     }
 }
