@@ -1,4 +1,4 @@
-package com.greater.leaguedex.model.network
+package com.recoverrelax.librarynetwork.model
 
 import kotlinx.serialization.Serializable
 

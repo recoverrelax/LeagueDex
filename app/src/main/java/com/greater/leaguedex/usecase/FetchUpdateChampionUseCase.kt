@@ -1,9 +1,9 @@
 package com.greater.leaguedex.usecase
 
-import com.greater.leaguedex.model.network.ChampionImage
-import com.greater.leaguedex.model.network.ChampionListDto
-import com.greater.leaguedex.network.PrivateApiService
 import com.greater.leaguedex.storage.store.ChampionStore
+import com.recoverrelax.librarynetwork.PrivateApiService
+import com.recoverrelax.librarynetwork.model.ChampionImage
+import com.recoverrelax.librarynetwork.model.ChampionListDto
 import tables.Champion
 import javax.inject.Inject
 

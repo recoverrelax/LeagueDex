@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import tables.Champion
 import tables.ChampionQueries
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 

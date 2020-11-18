@@ -1,9 +1,10 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'dagger.hilt.android.plugin'
-apply plugin: 'kotlinx-serialization'
-apply plugin: 'com.squareup.sqldelight'
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+    id 'com.squareup.sqldelight'
+}
 
 android {
     buildToolsVersion "30.0.2"
@@ -34,13 +35,25 @@ android {
     }
 
     buildFeatures {
+        compose true
         viewBinding true
+    }
+    composeOptions {
+        kotlinCompilerVersion kotlin_version
+        kotlinCompilerExtensionVersion compose_version
+    }
+
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            jvmTarget = "1.8"
+            freeCompilerArgs += ["-Xallow-jvm-ir-dependencies", "-Xskip-prerelease-check"]
+        }
     }
 }
 
 dependencies {
     def lifecycle_version = "2.3.0-beta01"
-
+    implementation project(':library_network')
     implementation "androidx.appcompat:appcompat:1.3.0-alpha02"
     implementation "com.google.android.material:material:1.3.0-alpha03"
 
@@ -68,12 +81,6 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutines}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutines}"
 
-    // retrofit
-    implementation "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0"
-    implementation "com.squareup.retrofit2:retrofit:2.9.0"
-    implementation "com.squareup.okhttp3:logging-interceptor:4.9.0"
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1"
-
     // logger
     implementation "com.jakewharton.timber:timber:4.7.1"
 
@@ -84,7 +91,24 @@ dependencies {
     // coil
     implementation "io.coil-kt:coil:1.0.0"
 
-    // stetho
+    // compose
+    implementation("androidx.compose.runtime:runtime-dispatch:$compose_version")
+    implementation("androidx.compose.runtime:runtime:$compose_version")
+    implementation "androidx.compose.animation:animation-core:$compose_version"
+    implementation "androidx.compose.animation:animation:$compose_version"
+    implementation("androidx.compose.ui:ui:$compose_version")
+    implementation "androidx.compose.foundation:foundation:$compose_version"
+    implementation "androidx.compose.ui:ui-geometry:$compose_version"
+    implementation "androidx.compose.ui:ui-graphics:$compose_version"
+    implementation "androidx.compose.foundation:foundation-layout:$compose_version"
+    implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
+    implementation "androidx.compose.material:material:$compose_version"
+    implementation "androidx.compose.material:material-icons-core:$compose_version"
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
+    implementation("androidx.compose.ui:ui-text:$compose_version")
+    implementation("androidx.compose.ui:ui-util:$compose_version")
+    implementation("androidx.compose.ui:ui-viewbinding:$compose_version")
+    implementation "androidx.ui:ui-tooling:$compose_version"
 }
 
 kapt {

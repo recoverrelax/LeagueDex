@@ -23,7 +23,7 @@ class ChampionListAdapter : SimpleAdapter<Champion, ItemviewChampionlistBinding>
         binding: ItemviewChampionlistBinding
     ) {
         binding.label.text = item.name
-        binding.image.load(item.imageIcon){
+        binding.image.load(item.imageIcon) {
             crossfade(true)
         }
     }

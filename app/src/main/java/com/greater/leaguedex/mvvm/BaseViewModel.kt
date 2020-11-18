@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import timber.log.Timber
 
-open class BaseViewModel<S: BaseViewStates>: ViewModel() {
+open class BaseViewModel<S : BaseViewStates> : ViewModel() {
     private val _viewState = BroadcastChannel<S>(capacity = Channel.BUFFERED)
     val viewState: Flow<S> = _viewState.asFlow()
 

@@ -17,7 +17,7 @@ class ChampionListFrag :
     private val binding by viewBinding(FragChampionlistBinding::bind)
 
     private val myAdapter = ChampionListAdapter()
-    private val myLayoutManager by lazy(LazyThreadSafetyMode.NONE){
+    private val myLayoutManager by lazy(LazyThreadSafetyMode.NONE) {
         GridLayoutManager(this.context, 3)
     }
 

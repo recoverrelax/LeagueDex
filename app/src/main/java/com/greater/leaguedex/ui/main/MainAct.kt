@@ -17,7 +17,7 @@ class MainAct : BaseActivity<MainViewModel, MainViewStates>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if(savedInstanceState == null){
+        if (savedInstanceState == null) {
             replaceFragment(
                 containerId = R.id.container,
                 fragmentSupplier = {

@@ -18,13 +18,15 @@ class ActivityBindingDelegate<T : ViewBinding>(
     private var binding: T? = null
 
     init {
-        activity.lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onCreate(owner: LifecycleOwner) {
-                super.onCreate(owner)
-                binding = viewBindingFactory(activity.layoutInflater)
-                    .also { activity.setContentView(it.root) }
+        activity.lifecycle.addObserver(
+            object : DefaultLifecycleObserver {
+                override fun onCreate(owner: LifecycleOwner) {
+                    super.onCreate(owner)
+                    binding = viewBindingFactory(activity.layoutInflater)
+                        .also { activity.setContentView(it.root) }
+                }
             }
-        })
+        )
     }
 
     override fun getValue(thisRef: ComponentActivity, property: KProperty<*>): T {
@@ -40,17 +42,21 @@ class FragmentViewBindingDelegate<T : ViewBinding>(
     private var binding: T? = null
 
     init {
-        fragment.lifecycle.addObserver(object : DefaultLifecycleObserver {
-            override fun onCreate(owner: LifecycleOwner) {
-                fragment.viewLifecycleOwnerLiveData.observe(fragment) { viewLifecycleOwner ->
-                    viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-                        override fun onDestroy(owner: LifecycleOwner) {
-                            binding = null
-                        }
-                    })
+        fragment.lifecycle.addObserver(
+            object : DefaultLifecycleObserver {
+                override fun onCreate(owner: LifecycleOwner) {
+                    fragment.viewLifecycleOwnerLiveData.observe(fragment) { viewLifecycleOwner ->
+                        viewLifecycleOwner.lifecycle.addObserver(
+                            object : DefaultLifecycleObserver {
+                                override fun onDestroy(owner: LifecycleOwner) {
+                                    binding = null
+                                }
+                            }
+                        )
+                    }
                 }
             }
-        })
+        )
     }
 
     override fun getValue(thisRef: Fragment, property: KProperty<*>): T {

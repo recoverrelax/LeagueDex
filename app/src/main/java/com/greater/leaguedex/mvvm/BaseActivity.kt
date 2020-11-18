@@ -20,13 +20,15 @@ abstract class BaseActivity<M : BaseViewModel<S>, S : BaseViewStates> : AppCompa
         ignoreStateLoss: Boolean = false,
         animations: FragAnimations = FragAnimations.NONE,
         fragmentSupplier: () -> androidx.fragment.app.Fragment,
-        addToBackStack: Boolean = true) {
+        addToBackStack: Boolean = true
+    ) {
         supportFragmentManager.beginTransaction().run {
             setCustomAnimations(
                 animations.enter,
                 animations.exit,
                 animations.popEnter,
-                animations.popExit)
+                animations.popExit
+            )
 
             if (addToBackStack) {
                 addToBackStack(null)
@@ -45,8 +47,11 @@ abstract class BaseActivity<M : BaseViewModel<S>, S : BaseViewStates> : AppCompa
     abstract fun render(viewState: S)
 
     data class FragAnimations(
-        val enter: Int, val exit: Int, val popEnter: Int, val popExit: Int
-                             ) {
+        val enter: Int,
+        val exit: Int,
+        val popEnter: Int,
+        val popExit: Int
+    ) {
         companion object {
             val NONE = FragAnimations(enter = 0, exit = 0, popEnter = 0, popExit = 0)
             /*val SLIDE = FragAnimations(

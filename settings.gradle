@@ -1,2 +1,3 @@
 include ':app'
 rootProject.name = "LeagueDex"
+include ':library_network'

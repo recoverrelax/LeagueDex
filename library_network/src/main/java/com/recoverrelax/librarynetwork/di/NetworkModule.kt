@@ -1,7 +1,7 @@
-package com.greater.leaguedex.di.modules
+package com.recoverrelax.librarynetwork.di
 
-import com.greater.leaguedex.network.PrivateApiService
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.recoverrelax.librarynetwork.PrivateApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,7 +11,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -19,12 +18,7 @@ import javax.inject.Singleton
 class NetworkModule {
     @Provides
     @Singleton
-    fun okttpClient(): OkHttpClient {
-        return OkHttpClient().newBuilder().apply {
-            this.readTimeout(20, TimeUnit.SECONDS)
-            this.writeTimeout(20, TimeUnit.SECONDS)
-        }.build()
-    }
+    fun okttpClient(): OkHttpClient = OkHttpClient()
 
     @Provides
     @Singleton
@@ -34,8 +28,7 @@ class NetworkModule {
             ignoreUnknownKeys = true
         }
 
-        return Retrofit.Builder()
-            .addConverterFactory(json.asConverterFactory(contentType))
+        return Retrofit.Builder().addConverterFactory(json.asConverterFactory(contentType))
             .baseUrl("https://ddragon.leagueoflegends.com") // we replace this later
             .build()
     }
@@ -53,10 +46,7 @@ class NetworkModule {
                 }
             )
         }.build()
-
-        val retrofitBuilder = retrofit.newBuilder()
-            .client(client)
-            .build()
+        val retrofitBuilder = retrofit.newBuilder().client(client).build()
 
         return retrofitBuilder.create(PrivateApiService::class.java)
     }
