@@ -45,20 +45,26 @@ class PeopleViewModel @ViewModelInject constructor(
         viewModelScope.launch {
             swipeRefresh.consumeAsFlow()
                 .onStart { emit(Unit) }
-                .flatMapLatest { dataSync.sync() }
-                .mapNotNull {
-                    when (it) {
-                        UpdateStatus.FINISHED -> PeopleViewStates.RequestSwipeRefresh(false)
-                        UpdateStatus.ERROR -> PeopleViewStates.ShowSyncError
-                        UpdateStatus.STARTED -> PeopleViewStates.RequestSwipeRefresh(true)
-                    }
-                }
+                .flatMapLatest { dataSync.sync(forceRefresh = false) }
+                .mapNotNull(::mapToViewStates)
                 .onEach { postEvent(it) }
                 .launchIn(viewModelScope)
 
             peopleList
                 .map { PeopleViewStates.UpdateList(data = it) }
                 .collectLatest { postEvent(it) }
+        }
+    }
+
+    private fun mapToViewStates(syncState: UpdateStatus): PeopleViewStates? {
+        return when (syncState) {
+            UpdateStatus.FINISHED -> PeopleViewStates.RequestSwipeRefresh(
+                refreshing = false,
+                requestAdapterRefresh = true
+            )
+            UpdateStatus.ERROR -> PeopleViewStates.ShowSyncError
+            UpdateStatus.STARTED -> PeopleViewStates.RequestSwipeRefresh(true)
+            UpdateStatus.NONE -> PeopleViewStates.RequestSwipeRefresh(false)
         }
     }
 

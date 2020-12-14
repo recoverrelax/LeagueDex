@@ -69,7 +69,11 @@ class PeopleFrag : BaseFragment<PeopleViewModel, PeopleViewStates>(R.layout.frag
                     myAdapter.submitData(viewState.data)
                 }
             }
-            is PeopleViewStates.RequestSwipeRefresh -> binding.swipeRefresh.isRefreshing = viewState.refreshing
+            is PeopleViewStates.RequestSwipeRefresh -> {
+                val (isRefreshing, refreshAdapter) = viewState
+                binding.swipeRefresh.isRefreshing = isRefreshing
+                if(refreshAdapter) myAdapter.refresh()
+            }
             PeopleViewStates.ShowSyncError -> {
                 binding.swipeRefresh.isRefreshing = false
                 Snackbar.make(binding.root, "Sync Failed. Try again", LENGTH_LONG)

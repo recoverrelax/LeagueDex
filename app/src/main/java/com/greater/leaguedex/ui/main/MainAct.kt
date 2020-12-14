@@ -17,8 +17,8 @@ class MainAct : BaseActivity<MainViewModel, MainViewStates>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if(savedInstanceState == null){
-            supportFragmentManager.commit{
+        if (savedInstanceState == null) {
+            supportFragmentManager.commit {
                 setReorderingAllowed(true)
                 add(R.id.container, PeopleFrag.newInstance(), PeopleFrag::class.java.simpleName)
             }

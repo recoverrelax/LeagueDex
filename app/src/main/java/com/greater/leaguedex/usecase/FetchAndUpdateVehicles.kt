@@ -3,8 +3,8 @@ package com.greater.leaguedex.usecase
 import com.greater.leaguedex.network.PrivateApiService
 import com.greater.leaguedex.network.model.VehicleDto
 import com.greater.leaguedex.storage.store.VehiclesStore
-import com.greater.leaguedex.util.parser.SwapApiParser
 import com.greater.leaguedex.util.parser.IdType
+import com.greater.leaguedex.util.parser.SwapApiParser
 import tables.Vehicle
 import javax.inject.Inject
 
@@ -13,7 +13,7 @@ class FetchAndUpdateVehicles @Inject constructor(
     private val vehiclesStore: VehiclesStore
 ) {
 
-     suspend operator fun invoke(initialPage: Int = 1) {
+    suspend operator fun invoke(initialPage: Int = 1) {
         val vehiclesPages = apiService.getVehicles(initialPage)
         storeSpecies(vehiclesPages.results)
         if (vehiclesPages.next != null) {
@@ -33,4 +33,3 @@ class FetchAndUpdateVehicles @Inject constructor(
         )
     }
 }
-

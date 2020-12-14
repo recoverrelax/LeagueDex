@@ -24,10 +24,10 @@ class DataSync @Inject constructor(
         return refreshInfo.shouldUpdate()
     }
 
-    suspend fun sync(): Flow<UpdateStatus> {
+    suspend fun sync(forceRefresh: Boolean = false): Flow<UpdateStatus> {
         return flow {
-            if (isSyncNeeded().not()) {
-                emit(UpdateStatus.FINISHED)
+            if (!forceRefresh && isSyncNeeded().not()) {
+                emit(UpdateStatus.NONE)
             } else {
                 emit(UpdateStatus.STARTED)
 

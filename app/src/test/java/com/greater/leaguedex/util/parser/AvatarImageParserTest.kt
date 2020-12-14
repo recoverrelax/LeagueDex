@@ -4,9 +4,9 @@ import junit.framework.TestCase
 import org.junit.Assert
 import org.junit.Test
 
-class AvatarImageParserTest : TestCase(){
+class AvatarImageParserTest : TestCase() {
     @Test
-    fun `test single word` () {
+    fun `test single word`() {
         val word = "JoãoMagalhães"
         val result = AvatarImageParser.buildAvatarUrl(0, word)
         Assert.assertTrue(
@@ -16,7 +16,7 @@ class AvatarImageParserTest : TestCase(){
     }
 
     @Test
-    fun `test double word` () {
+    fun `test double word`() {
         val word = "João Magalhães"
         val result = AvatarImageParser.buildAvatarUrl(0, word)
         Assert.assertTrue(
