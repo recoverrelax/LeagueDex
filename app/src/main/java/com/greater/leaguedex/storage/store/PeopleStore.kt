@@ -39,11 +39,11 @@ class PeopleStore @Inject constructor(
         }
     }
 
-    suspend fun getAllWithLanguage(limit: Long, initialId: String?): List<PeopleEntity> =
+    suspend fun getAllWithLanguage(limit: Long, initialId: String? = null): List<PeopleEntity> =
         withContext(Dispatchers.IO) {
             database.transactionWithResult {
-                queries.peopleWithLanguageRefreshInitial(initialId ?: "a", limit).executeAsList()
-                    .parsePeopleEntity()
+                queries.peopleWithLanguageRefreshInitialWithKey(initialId ?: "A", limit)
+                    .executeAsList().parsePeopleEntity()
             }
         }
 

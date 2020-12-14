@@ -72,7 +72,9 @@ class PeopleFrag : BaseFragment<PeopleViewModel, PeopleViewStates>(R.layout.frag
             is PeopleViewStates.RequestSwipeRefresh -> {
                 val (isRefreshing, refreshAdapter) = viewState
                 binding.swipeRefresh.isRefreshing = isRefreshing
-                if(refreshAdapter) myAdapter.refresh()
+                if(refreshAdapter) {
+                    myAdapter.refresh()
+                }
             }
             PeopleViewStates.ShowSyncError -> {
                 binding.swipeRefresh.isRefreshing = false

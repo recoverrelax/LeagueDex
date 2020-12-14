@@ -18,13 +18,13 @@ SELECT * FROM vehicle AS v, peopleVehicles AS pv WHERE pv.peopleId IN :peopleId 
 
 CREATE VIEW peopleWithLanguage AS
 SELECT people.id, people.name, specie.language FROM people
-INNER JOIN specie ON people.specieId == specie.id;
+LEFT JOIN specie ON people.specieId == specie.id;
 
-peopleWithLanguageRefreshInitial:
-SELECT * FROM (SELECT * FROM peopleWithLanguage WHERE name >= :name COLLATE NOCASE ORDER BY name LIMIT :limit) ORDER BY name ASC;
+peopleWithLanguageRefreshInitialWithKey:
+SELECT * FROM peopleWithLanguage WHERE name >= :name COLLATE NOCASE ORDER BY name LIMIT :limit;
 
 peopleWithLanguageAfter:
-SELECT * FROM (SELECT * FROM peopleWithLanguage WHERE name > :name ORDER BY name LIMIT :limit) ORDER BY name ASC;
+SELECT * FROM peopleWithLanguage WHERE name > :name ORDER BY name LIMIT :limit;
 
 peopleWithLanguageBefore:
 SELECT * FROM(SELECT * FROM peopleWithLanguage WHERE name < :name ORDER BY name DESC LIMIT :limit) ORDER BY name ASC;

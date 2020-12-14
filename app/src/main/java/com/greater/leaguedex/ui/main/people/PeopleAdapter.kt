@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.greater.leaguedex.R
 import com.greater.leaguedex.databinding.ItemviewPeopleBinding
+import timber.log.Timber
 
 class PeopleAdapter :
     PagingDataAdapter<PeopleModel, PeopleAdapter.ViewHolder>(DiffUtil) {
@@ -37,6 +38,10 @@ class PeopleAdapter :
                 placeholder(R.drawable.people_icon_default)
             }
         }
+    }
+
+    override fun getItemCount(): Int {
+        return super.getItemCount().also { Timber.i("Size: $it") }
     }
 
     private object DiffUtil : ItemCallback<PeopleModel>() {
