@@ -1,8 +1,0 @@
-CREATE TABLE peopleVehicles(
-    peopleId INTEGER NOT NULL,
-    vehicleId INTEGER NOT NULL,
-    PRIMARY KEY (peopleId, vehicleId)
-);
-
-insert:
-INSERT INTO peopleVehicles VALUES ?;

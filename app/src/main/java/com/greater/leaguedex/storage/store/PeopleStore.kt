@@ -2,10 +2,16 @@ package com.greater.leaguedex.storage.store
 
 import com.greater.leaguedex.Database
 import com.greater.leaguedex.storage.data.PeopleEntity
+import com.squareup.sqldelight.runtime.coroutines.asFlow
+import com.squareup.sqldelight.runtime.coroutines.mapToOne
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.withContext
 import tables.People
 import tables.PeopleQueries
+import tables.PeopleVehicles
 import tables.PeopleWithLanguage
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -55,9 +61,23 @@ class PeopleStore @Inject constructor(
             }
         }
 
-    suspend fun insertAll(champions: List<People>) = withContext(Dispatchers.IO) {
+    suspend fun insertAllPeople(data: List<People>) = withContext(Dispatchers.IO) {
         database.transaction {
-            champions.onEach { queries.insert(it) }
+            data.onEach { queries.insertPeople(it) }
         }
+    }
+
+    suspend fun insertAllPeopleVehicles(data: List<PeopleVehicles>) = withContext(Dispatchers.IO) {
+        database.transaction {
+            data.onEach { queries.insertPeopleVehicles(it) }
+        }
+    }
+
+    @Suppress("RedundantUnitExpression")
+    fun observePeopleAndVehiclesChanges(): Flow<Unit> {
+        return combine(
+            queries.existsPeople().asFlow().mapToOne(),
+            queries.existsPeopleVehicles().asFlow().mapToOne()
+        ) { _, _ -> Unit }.drop(1)
     }
 }

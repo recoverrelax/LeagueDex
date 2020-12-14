@@ -1,0 +1,30 @@
+package com.greater.leaguedex.storage.store
+
+import com.greater.leaguedex.Database
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import tables.Settings
+import tables.SettingsQueries
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class SettingStore @Inject constructor(
+    database: Database
+) {
+    private val queries: SettingsQueries = database.settingsQueries
+
+    companion object {
+        const val SETTING_TABLE_ID = 0L
+    }
+
+    suspend fun insert(
+        lastRefresh: Long
+    ) = withContext(Dispatchers.IO) {
+        queries.insert(Settings(SETTING_TABLE_ID, lastRefresh))
+    }
+
+    suspend fun getRefreshInfo(): Settings? = withContext(Dispatchers.IO) {
+        queries.refreshInfo().executeAsOneOrNull()
+    }
+}

@@ -3,17 +3,15 @@ package com.greater.leaguedex.usecase
 import com.greater.leaguedex.network.PrivateApiService
 import com.greater.leaguedex.network.model.PeopleDto
 import com.greater.leaguedex.storage.store.PeopleStore
-import com.greater.leaguedex.storage.store.PeopleVehiclesStore
-import com.greater.leaguedex.util.parser.SwapApiParser
 import com.greater.leaguedex.util.parser.IdType
+import com.greater.leaguedex.util.parser.SwapApiParser
 import tables.People
 import tables.PeopleVehicles
 import javax.inject.Inject
 
 class FetchAndUpdatePeople @Inject constructor(
     private val apiService: PrivateApiService,
-    private val specieStore: PeopleStore,
-    private val peopleVehiclesStore: PeopleVehiclesStore
+    private val peopleStore: PeopleStore,
 ) {
 
     suspend operator fun invoke(initialPage: Int = 1) {
@@ -38,14 +36,13 @@ class FetchAndUpdatePeople @Inject constructor(
                     ?.let { SwapApiParser.parseIdFromUrl(it, IdType.SPECIES) }
             )
         }
-        specieStore.insertAll(personEntities)
+        peopleStore.insertAllPeople(personEntities)
 
         val vehiclesEntities = personEntities.mapIndexed { index, people ->
             results[index].vehicles.map { SwapApiParser.parseIdFromUrl(it, IdType.VEHICLES) }
                 .map { PeopleVehicles(people.id, it) }
         }.flatten()
 
-        peopleVehiclesStore.insertAll(vehiclesEntities)
+        peopleStore.insertAllPeopleVehicles(vehiclesEntities)
     }
 }
-

@@ -22,6 +22,8 @@ class StorageModule {
     @Provides
     @Singleton
     fun database(driver: AndroidSqliteDriver): Database {
-        return Database.invoke(driver)
+        return Database.invoke(
+            driver = driver
+        )
     }
 }

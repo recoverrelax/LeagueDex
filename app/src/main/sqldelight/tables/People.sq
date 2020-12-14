@@ -1,9 +1,13 @@
-import kotlin.collections.List;
-
 CREATE TABLE people(
     id INTEGER NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
     specieId INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS peopleVehicles(
+    peopleId INTEGER NOT NULL,
+    vehicleId INTEGER NOT NULL,
+    PRIMARY KEY (peopleId, vehicleId)
 );
 
 CREATE UNIQUE INDEX index_people_name
@@ -25,11 +29,17 @@ SELECT * FROM (SELECT * FROM peopleWithLanguage WHERE name > :name ORDER BY name
 peopleWithLanguageBefore:
 SELECT * FROM(SELECT * FROM peopleWithLanguage WHERE name < :name ORDER BY name DESC LIMIT :limit) ORDER BY name ASC;
 
+insertPeopleVehicles:
+INSERT OR REPLACE INTO peopleVehicles VALUES ?;
+
+insertPeople:
+INSERT OR REPLACE INTO people VALUES ?;
+
 getAll:
 SELECT * FROM people;
 
-insert:
-INSERT INTO people VALUES ?;
-
-exists:
+existsPeople:
 SELECT EXISTS (SELECT 1 FROM people);
+
+existsPeopleVehicles:
+SELECT EXISTS (SELECT 1 FROM peopleVehicles);

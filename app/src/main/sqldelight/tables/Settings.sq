@@ -1,0 +1,10 @@
+CREATE TABLE settings(
+    id INTEGER NOT NULL PRIMARY KEY,
+    lastRefresh INTEGER NOT NULL
+);
+
+insert:
+INSERT OR REPLACE INTO settings VALUES ?;
+
+refreshInfo:
+SELECT * FROM settings;

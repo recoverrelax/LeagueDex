@@ -1,4 +1,4 @@
-CREATE TABLE vehicle(
+CREATE TABLE IF NOT EXISTS vehicle(
     id INTEGER NOT NULL PRIMARY KEY,
     name TEXT NOT NULL
 );
@@ -7,4 +7,4 @@ getAllByID:
 SELECT * FROM vehicle WHERE id = :id;
 
 insert:
-INSERT INTO vehicle VALUES ?;
+INSERT OR REPLACE INTO vehicle VALUES ?;

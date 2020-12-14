@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.greater.leaguedex.R
 import com.greater.leaguedex.databinding.ItemviewPeopleBinding
-import com.greater.leaguedex.util.parser.AvatarImageParser
 
 class PeopleAdapter :
     PagingDataAdapter<PeopleModel, PeopleAdapter.ViewHolder>(DiffUtil) {

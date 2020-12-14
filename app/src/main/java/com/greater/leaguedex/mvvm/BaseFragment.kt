@@ -4,27 +4,34 @@ import android.os.Bundle
 import android.view.View
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 abstract class BaseFragment<M : BaseViewModel<S>, S : BaseViewStates>(
     @LayoutRes layoutRes: Int
 ) : Fragment(layoutRes) {
     abstract val viewModel: M
 
+    val lifeCycleScope = CoroutineScope(Dispatchers.Main.immediate + Job())
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        lifecycleScope.launch {
-            viewModel.viewState.onEach { event: S -> render(event) }.launchIn(this)
+        lifeCycleScope.launch {
+            viewModel.viewState.collect { event: S ->
+                Timber.i("Received Event: $event")
+                render(event)
+            }
         }
     }
 
     override fun onDestroyView() {
+        lifeCycleScope.coroutineContext.cancelChildren()
         super.onDestroyView()
-        lifecycleScope.coroutineContext.cancelChildren()
     }
 
     abstract fun render(viewState: S)

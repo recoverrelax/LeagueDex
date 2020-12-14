@@ -1,19 +1,19 @@
 package com.greater.leaguedex.mvvm
 
+import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 abstract class BaseActivity<M : BaseViewModel<S>, S : BaseViewStates> : AppCompatActivity() {
     abstract val viewModel: M
 
-    init {
-        lifecycleScope.launchWhenCreated {
-            viewModel.viewState.onEach { event: S -> render(event) }.launchIn(this)
-        }
-    }
+    private val lifeCycleScope = CoroutineScope(Dispatchers.Main.immediate + Job())
 
     protected fun replaceFragment(
         @IdRes containerId: Int,
@@ -45,6 +45,16 @@ abstract class BaseActivity<M : BaseViewModel<S>, S : BaseViewStates> : AppCompa
     }
 
     abstract fun render(viewState: S)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.viewState.onEach { event: S -> render(event) }.launchIn(lifeCycleScope)
+    }
+
+    override fun onDestroy() {
+        lifeCycleScope.coroutineContext.cancelChildren()
+        super.onDestroy()
+    }
 
     data class FragAnimations(
         val enter: Int,

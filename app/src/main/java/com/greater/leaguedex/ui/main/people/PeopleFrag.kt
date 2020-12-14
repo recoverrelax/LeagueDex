@@ -3,9 +3,10 @@ package com.greater.leaguedex.ui.main.people
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_LONG
+import com.google.android.material.snackbar.Snackbar
 import com.greater.leaguedex.R
 import com.greater.leaguedex.databinding.FragPeopleBinding
 import com.greater.leaguedex.mvvm.BaseFragment
@@ -36,17 +37,20 @@ class PeopleFrag : BaseFragment<PeopleViewModel, PeopleViewStates>(R.layout.frag
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.swipeRefresh.setOnRefreshListener { viewModel.onRefreshRequested() }
+
         with(binding.peopleList) {
             layoutManager = myLayoutManager
             adapter = myAdapter
         }
+        viewModel.initialize()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         val pos = getFirstVisibleKey()
         if (pos != null) {
             val item = myAdapter.snapshot().getOrNull(pos)?.name
-            if(item != null){
+            if (item != null) {
                 viewModel.saveState(item)
             }
         }
@@ -58,17 +62,18 @@ class PeopleFrag : BaseFragment<PeopleViewModel, PeopleViewStates>(R.layout.frag
         return if (pos == RecyclerView.NO_POSITION) null else pos
     }
 
-    override fun onStart() {
-        super.onStart()
-        viewModel.onStart()
-    }
-
     override fun render(viewState: PeopleViewStates) {
         when (viewState) {
             is PeopleViewStates.UpdateList -> {
-                lifecycleScope.launch {
+                lifeCycleScope.launch {
                     myAdapter.submitData(viewState.data)
                 }
+            }
+            is PeopleViewStates.RequestSwipeRefresh -> binding.swipeRefresh.isRefreshing = viewState.refreshing
+            PeopleViewStates.ShowSyncError -> {
+                binding.swipeRefresh.isRefreshing = false
+                Snackbar.make(binding.root, "Sync Failed. Try again", LENGTH_LONG)
+                    .show()
             }
         }
     }
