@@ -2,10 +2,11 @@ package com.greater.leaguedex.ui.main
 
 import android.os.Bundle
 import androidx.activity.viewModels
+import androidx.fragment.app.commit
 import com.greater.leaguedex.R
 import com.greater.leaguedex.databinding.ActMainBinding
 import com.greater.leaguedex.mvvm.BaseActivity
-import com.greater.leaguedex.ui.championlist.ChampionListFrag
+import com.greater.leaguedex.ui.main.people.PeopleFrag
 import com.greater.leaguedex.util.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -16,15 +17,11 @@ class MainAct : BaseActivity<MainViewModel, MainViewStates>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (savedInstanceState == null) {
-            replaceFragment(
-                containerId = R.id.container,
-                fragmentSupplier = {
-                    ChampionListFrag.newInstance()
-                },
-                addToBackStack = false
-            )
+        if(savedInstanceState == null){
+            supportFragmentManager.commit{
+                setReorderingAllowed(true)
+                add(R.id.container, PeopleFrag.newInstance(), PeopleFrag::class.java.simpleName)
+            }
         }
     }
 

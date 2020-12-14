@@ -1,0 +1,35 @@
+import kotlin.collections.List;
+
+CREATE TABLE people(
+    id INTEGER NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    specieId INTEGER
+);
+
+CREATE UNIQUE INDEX index_people_name
+ON people (name);
+
+vehiclesAndPeople:
+SELECT * FROM vehicle AS v, peopleVehicles AS pv WHERE pv.peopleId IN :peopleId AND v.id = pv.vehicleId;
+
+CREATE VIEW peopleWithLanguage AS
+SELECT people.id, people.name, specie.language FROM people
+INNER JOIN specie ON people.specieId == specie.id;
+
+peopleWithLanguageRefreshInitial:
+SELECT * FROM (SELECT * FROM peopleWithLanguage WHERE name >= :name COLLATE NOCASE ORDER BY name LIMIT :limit) ORDER BY name ASC;
+
+peopleWithLanguageAfter:
+SELECT * FROM (SELECT * FROM peopleWithLanguage WHERE name > :name ORDER BY name LIMIT :limit) ORDER BY name ASC;
+
+peopleWithLanguageBefore:
+SELECT * FROM(SELECT * FROM peopleWithLanguage WHERE name < :name ORDER BY name DESC LIMIT :limit) ORDER BY name ASC;
+
+getAll:
+SELECT * FROM people;
+
+insert:
+INSERT INTO people VALUES ?;
+
+exists:
+SELECT EXISTS (SELECT 1 FROM people);

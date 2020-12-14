@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">LeagueDex</string>
-
-    <string name="frag_championlist_toolbar_title">Champions</string>
+    <string name="app_name">StartWarsDex</string>
+    <string name="frag_people_title">People</string>
 </resources>

@@ -1,0 +1,10 @@
+CREATE TABLE vehicle(
+    id INTEGER NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+getAllByID:
+SELECT * FROM vehicle WHERE id = :id;
+
+insert:
+INSERT INTO vehicle VALUES ?;

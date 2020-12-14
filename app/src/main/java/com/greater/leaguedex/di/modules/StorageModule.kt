@@ -16,7 +16,7 @@ class StorageModule {
     @Provides
     @Singleton
     fun driver(@ApplicationContext context: Context): AndroidSqliteDriver {
-        return AndroidSqliteDriver(Database.Schema, context, "leaguedex.db")
+        return AndroidSqliteDriver(Database.Schema, context, "startwars.db")
     }
 
     @Provides

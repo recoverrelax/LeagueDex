@@ -1,0 +1,14 @@
+CREATE TABLE specie(
+    id INTEGER NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    language TEXT
+);
+
+getAll:
+SELECT * FROM specie;
+
+insert:
+INSERT INTO specie VALUES ?;
+
+exists:
+SELECT EXISTS (SELECT 1 FROM specie);
