@@ -5,24 +5,24 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 open class BaseViewModel<S : BaseViewStates> : ViewModel() {
-    private val _viewState = BroadcastChannel<S>(capacity = Channel.BUFFERED)
-    val viewState: Flow<S> = _viewState.asFlow()
-    protected val viewModelScope = CoroutineScope(Dispatchers.Main.immediate + Job())
+    private val _viewState = MutableSharedFlow<S>()
+    val viewState: Flow<S> = _viewState.asSharedFlow()
+    val viewScope = CoroutineScope(Dispatchers.Main.immediate + Job())
 
     protected fun postEvent(event: S) {
         Timber.i("Posted event: $event")
-        _viewState.offer(event)
+        viewScope.launch { _viewState.emit(event) }
     }
 
     override fun onCleared() {
-        viewModelScope.coroutineContext.cancelChildren()
+        viewScope.coroutineContext.cancelChildren()
         super.onCleared()
     }
 }

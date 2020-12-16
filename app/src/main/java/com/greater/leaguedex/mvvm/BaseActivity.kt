@@ -3,17 +3,12 @@ package com.greater.leaguedex.mvvm
 import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelChildren
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 abstract class BaseActivity<M : BaseViewModel<S>, S : BaseViewStates> : AppCompatActivity() {
     abstract val viewModel: M
-
-    private val lifeCycleScope = CoroutineScope(Dispatchers.Main.immediate + Job())
 
     protected fun replaceFragment(
         @IdRes containerId: Int,
@@ -48,12 +43,7 @@ abstract class BaseActivity<M : BaseViewModel<S>, S : BaseViewStates> : AppCompa
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.viewState.onEach { event: S -> render(event) }.launchIn(lifeCycleScope)
-    }
-
-    override fun onDestroy() {
-        lifeCycleScope.coroutineContext.cancelChildren()
-        super.onDestroy()
+        viewModel.viewState.onEach { event: S -> render(event) }.launchIn(lifecycleScope)
     }
 
     data class FragAnimations(
@@ -64,12 +54,6 @@ abstract class BaseActivity<M : BaseViewModel<S>, S : BaseViewStates> : AppCompa
     ) {
         companion object {
             val NONE = FragAnimations(enter = 0, exit = 0, popEnter = 0, popExit = 0)
-            /*val SLIDE = FragAnimations(
-                enter = R.anim.slide_left_in,
-                exit = R.anim.slide_left_out,
-                popEnter = R.anim.slide_right_in,
-                popExit = R.anim.slide_right_out
-            )*/
         }
     }
 }

@@ -3,6 +3,7 @@ package com.greater.leaguedex.ui.main.people
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_LONG
@@ -32,7 +33,11 @@ class PeopleFrag : BaseFragment<PeopleViewModel, PeopleViewStates>(R.layout.frag
             false
         )
     }
-    private val myAdapter: PeopleAdapter = PeopleAdapter()
+    private val myAdapter: PeopleAdapter by lazy(LazyThreadSafetyMode.NONE) {
+        PeopleAdapter(
+            onFavouriteClicked = viewModel::onFavouriteClicked
+        )
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -65,16 +70,14 @@ class PeopleFrag : BaseFragment<PeopleViewModel, PeopleViewStates>(R.layout.frag
     override fun render(viewState: PeopleViewStates) {
         when (viewState) {
             is PeopleViewStates.UpdateList -> {
-                lifeCycleScope.launch {
+                viewLifecycleOwner.lifecycleScope.launch {
                     myAdapter.submitData(viewState.data)
                 }
             }
             is PeopleViewStates.RequestSwipeRefresh -> {
                 val (isRefreshing, refreshAdapter) = viewState
                 binding.swipeRefresh.isRefreshing = isRefreshing
-                if(refreshAdapter) {
-                    myAdapter.refresh()
-                }
+                if (refreshAdapter) myAdapter.refresh()
             }
             PeopleViewStates.ShowSyncError -> {
                 binding.swipeRefresh.isRefreshing = false

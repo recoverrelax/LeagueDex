@@ -9,7 +9,6 @@ import com.greater.leaguedex.BuildConfig
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
-
 @HiltAndroidApp
 class LeagueDexApplication : Application() {
     override fun onCreate() {

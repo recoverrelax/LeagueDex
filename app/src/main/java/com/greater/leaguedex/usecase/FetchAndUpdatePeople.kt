@@ -5,7 +5,7 @@ import com.greater.leaguedex.network.model.PeopleDto
 import com.greater.leaguedex.storage.store.PeopleStore
 import com.greater.leaguedex.util.parser.IdType
 import com.greater.leaguedex.util.parser.SwapApiParser
-import tables.People
+import tables.PeopleEntity
 import tables.PeopleVehicles
 import javax.inject.Inject
 
@@ -25,7 +25,7 @@ class FetchAndUpdatePeople @Inject constructor(
 
     private suspend fun storePeople(results: List<PeopleDto>) {
         val personEntities = results.map { people: PeopleDto ->
-            People(
+            PeopleEntity(
                 id = SwapApiParser.parseIdFromUrl(people.url, IdType.PEOPLE),
                 name = people.name,
                 // the api has indication that a person may have multiple specie by the defined schema type
@@ -33,7 +33,8 @@ class FetchAndUpdatePeople @Inject constructor(
                 // let's consider just 1 for now
                 // TODO: support multiple species
                 specieId = people.species.firstOrNull()
-                    ?.let { SwapApiParser.parseIdFromUrl(it, IdType.SPECIES) }
+                    ?.let { SwapApiParser.parseIdFromUrl(it, IdType.SPECIES) },
+                isFavourite = false
             )
         }
         peopleStore.insertAllPeople(personEntities)

@@ -1,14 +1,14 @@
-CREATE TABLE IF NOT EXISTS specie(
+CREATE TABLE IF NOT EXISTS specieEntity(
     id INTEGER NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
     language TEXT
 );
 
 getAll:
-SELECT * FROM specie;
+SELECT * FROM specieEntity;
 
 insert:
-INSERT OR REPLACE INTO specie VALUES ?;
+INSERT OR REPLACE INTO specieEntity VALUES ?;
 
 exists:
-SELECT EXISTS (SELECT 1 FROM specie);
+SELECT EXISTS (SELECT 1 FROM specieEntity);

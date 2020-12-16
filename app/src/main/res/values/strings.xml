@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">StartWarsDex</string>
     <string name="frag_people_title">People</string>
+    <string name="name_label">&lt;b>Name:&lt;/b> %1$s</string>
+    <string name="language_label">&lt;b>Language:&lt;/b> %1$s</string>
+    <string name="vehicles_label">&lt;b>Vehicles:&lt;/b> [%1$s]</string>
+    <string name="vehicles_label_none">&lt;b>Vehicles:&lt;/b> none</string>
 </resources>

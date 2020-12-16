@@ -3,18 +3,18 @@ package com.greater.leaguedex.ui.main.people
 import androidx.hilt.Assisted
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.greater.leaguedex.mvvm.BaseViewModel
-import com.greater.leaguedex.storage.data.PeopleEntity
+import com.greater.leaguedex.storage.store.PeopleStore
 import com.greater.leaguedex.ui.main.app.DataSync
 import com.greater.leaguedex.util.UpdateStatus
 import com.greater.leaguedex.util.parser.AvatarImageParser
-import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -22,33 +22,36 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import tables.PeopleWithLanguageAndVehicles
 import javax.inject.Provider
 
 class PeopleViewModel @ViewModelInject constructor(
     peopleDataSource: Provider<PeopleDataSource>,
+    private val peopleStore: PeopleStore,
     private val dataSync: DataSync,
     @Assisted private val savedStateHandle: SavedStateHandle
 ) : BaseViewModel<PeopleViewStates>() {
+
     private val STATE_KEY = "PeopleViewModel.STATE_KEY"
 
     private val peopleList = Pager(
-        initialKey = savedStateHandle.get(STATE_KEY),
+        initialKey = "Grievous",
         config = PagingConfig(pageSize = 10, enablePlaceholders = false)
     ) { peopleDataSource.get() }
         .flow
         .map { pagingData -> pagingData.map { mapToModel(it) } }
         .cachedIn(viewModelScope)
 
-    private val swipeRefresh = Channel<Unit>(capacity = 1)
+    private val swipeRefresh = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
 
     fun initialize() {
-        viewModelScope.launch {
-            swipeRefresh.consumeAsFlow()
+        viewScope.launch {
+            swipeRefresh
                 .onStart { emit(Unit) }
                 .flatMapLatest { dataSync.sync(forceRefresh = false) }
                 .mapNotNull(::mapToViewStates)
                 .onEach { postEvent(it) }
-                .launchIn(viewModelScope)
+                .launchIn(viewScope)
 
             peopleList
                 .map { PeopleViewStates.UpdateList(data = it) }
@@ -68,7 +71,7 @@ class PeopleViewModel @ViewModelInject constructor(
         }
     }
 
-    private fun mapToModel(people: PeopleEntity): PeopleModel {
+    private fun mapToModel(people: PeopleWithLanguageAndVehicles): PeopleModel {
         return PeopleModel(
             id = people.id,
             name = people.name,
@@ -77,7 +80,8 @@ class PeopleViewModel @ViewModelInject constructor(
                 name = people.language
             ),
             language = people.language ?: "na",
-            vehicles = people.vehicles
+            vehicles = people.vehicles,
+            isFavourite = people.isFavourite
         )
     }
 
@@ -86,6 +90,10 @@ class PeopleViewModel @ViewModelInject constructor(
     }
 
     fun onRefreshRequested() {
-        swipeRefresh.offer(Unit)
+        viewModelScope.launch { swipeRefresh.emit(Unit) }
+    }
+
+    fun onFavouriteClicked(itemId: Long, isFavourite: Boolean) {
+        viewModelScope.launch { peopleStore.updateFavourite(itemId, isFavourite) }
     }
 }

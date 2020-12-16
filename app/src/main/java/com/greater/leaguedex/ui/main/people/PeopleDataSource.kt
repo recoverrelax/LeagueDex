@@ -1,37 +1,27 @@
 package com.greater.leaguedex.ui.main.people
 
 import androidx.paging.PagingSource
-import com.greater.leaguedex.storage.data.PeopleEntity
 import com.greater.leaguedex.storage.store.PeopleStore
-import timber.log.Timber
+import com.greater.leaguedex.storage.util.QueryType
+import tables.PeopleWithLanguageAndVehicles
 import javax.inject.Inject
 
 class PeopleDataSource @Inject constructor(
     private val peopleStore: PeopleStore
-) : PagingSource<String, PeopleEntity>() {
-    override suspend fun load(params: LoadParams<String>): LoadResult<String, PeopleEntity> {
-        val data = when (params) {
-            is LoadParams.Refresh -> peopleStore.getAllWithLanguage(
-                params.loadSize.toLong(),
-                params.key
-            )
-            is LoadParams.Append -> peopleStore.getAllWithLanguageAfter(
-                params.key,
-                params.loadSize.toLong()
-            )
-            is LoadParams.Prepend -> peopleStore.getAllWithLanguageBefore(
-                params.key,
-                params.loadSize.toLong()
-            )
-        }
+) : PagingSource<String, PeopleWithLanguageAndVehicles>() {
+    override suspend fun load(params: LoadParams<String>): LoadResult<String, PeopleWithLanguageAndVehicles> {
+        // we could use limit offset based query
+        // this technique is faster (aka scrolling cursor)
+        // but way more pain to implement the queries
 
-        Timber.i(
-            """
-                type: ${params.javaClass.simpleName},
-                key: ${params.key},
-                dataSize: ${data.size},
-                data: ${data.map { it.name }.joinToString(", ")}
-            """.trimIndent()
+        val data = peopleStore.getAllWithLanguage(
+            queryType = when (params) {
+                is LoadParams.Refresh -> QueryType.INITIAL
+                is LoadParams.Append -> QueryType.APPEND
+                is LoadParams.Prepend -> QueryType.PREPEND
+            },
+            query = params.key,
+            params.loadSize.toLong()
         )
 
         return LoadResult.Page(

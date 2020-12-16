@@ -5,7 +5,7 @@ import com.greater.leaguedex.network.model.VehicleDto
 import com.greater.leaguedex.storage.store.VehiclesStore
 import com.greater.leaguedex.util.parser.IdType
 import com.greater.leaguedex.util.parser.SwapApiParser
-import tables.Vehicle
+import tables.VehicleEntity
 import javax.inject.Inject
 
 class FetchAndUpdateVehicles @Inject constructor(
@@ -15,17 +15,17 @@ class FetchAndUpdateVehicles @Inject constructor(
 
     suspend operator fun invoke(initialPage: Int = 1) {
         val vehiclesPages = apiService.getVehicles(initialPage)
-        storeSpecies(vehiclesPages.results)
+        storeVehicles(vehiclesPages.results)
         if (vehiclesPages.next != null) {
             // no more pages
             invoke(SwapApiParser.parseNextPage(vehiclesPages.next))
         }
     }
 
-    private suspend fun storeSpecies(results: List<VehicleDto>) {
+    private suspend fun storeVehicles(results: List<VehicleDto>) {
         vehiclesStore.insertAll(
             results.map { vehicle ->
-                Vehicle(
+                VehicleEntity(
                     id = SwapApiParser.parseIdFromUrl(vehicle.url, IdType.VEHICLES),
                     name = vehicle.name
                 )

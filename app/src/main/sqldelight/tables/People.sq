@@ -1,7 +1,8 @@
-CREATE TABLE people(
+CREATE TABLE peopleEntity(
     id INTEGER NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
-    specieId INTEGER
+    specieId INTEGER,
+    isFavourite INTEGER AS Boolean NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS peopleVehicles(
@@ -10,36 +11,43 @@ CREATE TABLE IF NOT EXISTS peopleVehicles(
     PRIMARY KEY (peopleId, vehicleId)
 );
 
-CREATE UNIQUE INDEX index_people_name
-ON people (name);
+CREATE VIEW vehiclesByUser AS
+SELECT vehicleEntity.name AS vname, peopleVehicles.peopleId AS pdi FROM peopleVehicles INNER JOIN vehicleEntity ON peopleVehicles.vehicleId == vehicleEntity.id;
 
-vehiclesAndPeople:
-SELECT * FROM vehicle AS v, peopleVehicles AS pv WHERE pv.peopleId IN :peopleId AND v.id = pv.vehicleId;
+CREATE VIEW peopleWithLanguageAndVehicles AS
+SELECT peopleEntity.id, peopleEntity.name, specieEntity.language, peopleEntity.isFavourite, ifnull(GROUP_CONCAT(vname), '') vehicles FROM peopleEntity
+LEFT JOIN specieEntity ON peopleEntity.specieId == specieEntity.id
+LEFT JOIN vehiclesByUser ON peopleEntity.id == pdi
+GROUP BY peopleEntity.id;
 
-CREATE VIEW peopleWithLanguage AS
-SELECT people.id, people.name, specie.language FROM people
-LEFT JOIN specie ON people.specieId == specie.id;
-
-peopleWithLanguageRefreshInitialWithKey:
-SELECT * FROM peopleWithLanguage WHERE name >= :name COLLATE NOCASE ORDER BY name LIMIT :limit;
-
-peopleWithLanguageAfter:
-SELECT * FROM peopleWithLanguage WHERE name > :name ORDER BY name LIMIT :limit;
-
-peopleWithLanguageBefore:
-SELECT * FROM(SELECT * FROM peopleWithLanguage WHERE name < :name ORDER BY name DESC LIMIT :limit) ORDER BY name ASC;
+peopleWithLanguage:
+SELECT * FROM (
+    SELECT * FROM peopleWithLanguageAndVehicles WHERE CASE
+            WHEN :queryType == 0 AND name = '' THEN 1=1
+            WHEN :queryType == 0 AND name != '' THEN name >= :name
+            WHEN :queryType > 0 THEN name > :name
+            ELSE name < :name END
+    ORDER BY
+        CASE WHEN :queryType < 0 THEN name END DESC,
+        CASE WHEN 1=1 THEN name END ASC
+    LIMIT :limit
+)
+ORDER BY name;
 
 insertPeopleVehicles:
 INSERT OR REPLACE INTO peopleVehicles VALUES ?;
 
 insertPeople:
-INSERT OR REPLACE INTO people VALUES ?;
+INSERT OR REPLACE INTO peopleEntity VALUES ?;
+
+updateFavourite:
+UPDATE peopleEntity SET isFavourite = :isFavourite WHERE id = :peopleId;
 
 getAll:
-SELECT * FROM people;
+SELECT * FROM peopleEntity;
 
 existsPeople:
-SELECT EXISTS (SELECT 1 FROM people);
+SELECT EXISTS (SELECT 1 FROM peopleEntity);
 
 existsPeopleVehicles:
 SELECT EXISTS (SELECT 1 FROM peopleVehicles);

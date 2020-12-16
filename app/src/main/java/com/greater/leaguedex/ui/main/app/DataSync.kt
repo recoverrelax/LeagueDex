@@ -7,7 +7,7 @@ import com.greater.leaguedex.usecase.FetchAndUpdateVehicles
 import com.greater.leaguedex.util.UpdateStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import tables.Settings
+import tables.SettingsEntity
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -54,7 +54,7 @@ class DataSync @Inject constructor(
         )
     }
 
-    private fun Settings?.shouldUpdate(): Boolean {
+    private fun SettingsEntity?.shouldUpdate(): Boolean {
         if (this == null) return true
         val last: Long = this.lastRefresh
         return System.currentTimeMillis() + REFRESH_TIMEOUT <= last

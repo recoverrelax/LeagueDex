@@ -5,7 +5,7 @@ import com.greater.leaguedex.network.model.SpecieDto
 import com.greater.leaguedex.storage.store.SpecieStore
 import com.greater.leaguedex.util.parser.IdType
 import com.greater.leaguedex.util.parser.SwapApiParser
-import tables.Specie
+import tables.SpecieEntity
 import javax.inject.Inject
 
 class FetchAndUpdateSpecies @Inject constructor(
@@ -26,7 +26,7 @@ class FetchAndUpdateSpecies @Inject constructor(
     private suspend fun storeSpecies(results: List<SpecieDto>) {
         specieStore.insertAll(
             results.map { specie ->
-                Specie(
+                SpecieEntity(
                     id = SwapApiParser.parseIdFromUrl(specie.url, IdType.SPECIES),
                     name = specie.name,
                     language = specie.language.let { if (it == NO_LANGUAGE) null else it }

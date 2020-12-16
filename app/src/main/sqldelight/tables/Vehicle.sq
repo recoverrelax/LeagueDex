@@ -1,10 +1,10 @@
-CREATE TABLE IF NOT EXISTS vehicle(
+CREATE TABLE IF NOT EXISTS vehicleEntity(
     id INTEGER NOT NULL PRIMARY KEY,
     name TEXT NOT NULL
 );
 
 getAllByID:
-SELECT * FROM vehicle WHERE id = :id;
+SELECT * FROM vehicleEntity WHERE id = :id;
 
 insert:
-INSERT OR REPLACE INTO vehicle VALUES ?;
+INSERT OR REPLACE INTO vehicleEntity VALUES ?;

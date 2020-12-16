@@ -1,10 +1,10 @@
-CREATE TABLE settings(
+CREATE TABLE settingsEntity(
     id INTEGER NOT NULL PRIMARY KEY,
     lastRefresh INTEGER NOT NULL
 );
 
 insert:
-INSERT OR REPLACE INTO settings VALUES ?;
+INSERT OR REPLACE INTO settingsEntity VALUES ?;
 
 refreshInfo:
-SELECT * FROM settings;
+SELECT * FROM settingsEntity;

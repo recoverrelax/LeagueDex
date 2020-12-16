@@ -3,7 +3,7 @@ package com.greater.leaguedex.storage.store
 import com.greater.leaguedex.Database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import tables.Settings
+import tables.SettingsEntity
 import tables.SettingsQueries
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,10 +21,10 @@ class SettingStore @Inject constructor(
     suspend fun insert(
         lastRefresh: Long
     ) = withContext(Dispatchers.IO) {
-        queries.insert(Settings(SETTING_TABLE_ID, lastRefresh))
+        queries.insert(SettingsEntity(SETTING_TABLE_ID, lastRefresh))
     }
 
-    suspend fun getRefreshInfo(): Settings? = withContext(Dispatchers.IO) {
+    suspend fun getRefreshInfo(): SettingsEntity? = withContext(Dispatchers.IO) {
         queries.refreshInfo().executeAsOneOrNull()
     }
 }
