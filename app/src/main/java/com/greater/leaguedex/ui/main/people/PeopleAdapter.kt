@@ -14,7 +14,7 @@ import timber.log.Timber
 
 class PeopleAdapter(
     private val onFavouriteClicked: (itemId: Long, isFavourite: Boolean) -> Unit
-) : PagingDataAdapter<PeopleModel, PeopleAdapter.ViewHolder>(DiffUtil) {
+) : PagingDataAdapter<PeopleItem, PeopleAdapter.ViewHolder>(DiffUtil) {
 
     object UPDATE_FAVOURITE
 
@@ -48,8 +48,8 @@ class PeopleAdapter(
 
         // we update new state immediately
         // and dispatch a change to the viewModel
-        item.isFavourite = item.isFavourite.not()
-        notifyItemChanged(position, UPDATE_FAVOURITE)
+//        item.isFavourite = item.isFavourite.not()
+//        notifyItemChanged(position, UPDATE_FAVOURITE)
         onFavouriteClicked(item.id, item.isFavourite)
     }
 
@@ -62,31 +62,32 @@ class PeopleAdapter(
             }
         }
 
-        fun bind(peopleModel: PeopleModel) {
+        fun bind(peopleItem: PeopleItem) {
+            Timber.i("Bind: $peopleItem")
             val context = binding.root.context
 
-            binding.name.text = context.getString(R.string.name_label, peopleModel.name).html()
+            binding.name.text = context.getString(R.string.name_label, peopleItem.name).html()
             binding.language.text =
-                context.getString(R.string.language_label, peopleModel.language).html()
-            binding.vehicles.text = if (peopleModel.vehicles.isEmpty()) {
+                context.getString(R.string.language_label, peopleItem.language).html()
+            binding.vehicles.text = if (peopleItem.vehicles.isEmpty()) {
                 context.getString(R.string.vehicles_label_none).html()
             } else {
-                context.getString(R.string.vehicles_label, peopleModel.vehicles)
+                context.getString(R.string.vehicles_label, peopleItem.vehicles)
                     .html()
             }
 
-            bindFavourite(peopleModel)
-            binding.icon.load(peopleModel.imageUrl) {
+            binding.favourite.isSelected = peopleItem.isFavourite
+            binding.icon.load(peopleItem.imageUrl) {
                 crossfade(true)
                 fallback(R.drawable.people_icon_default)
                 placeholder(R.drawable.people_icon_default)
             }
         }
 
-        fun bindFavourite(peopleModel: PeopleModel) {
+        fun bindFavourite(peopleItem: PeopleItem) {
             // map is the source of true
             // fallback to bind state
-            binding.favourite.isSelected = peopleModel.isFavourite
+            binding.favourite.isSelected = peopleItem.isFavourite
         }
 
         private fun String.html(): Spanned {
@@ -94,17 +95,17 @@ class PeopleAdapter(
         }
     }
 
-    override fun getItemCount(): Int {
-        return super.getItemCount().also { Timber.i("Size: $it") }
-    }
-
-    private object DiffUtil : ItemCallback<PeopleModel>() {
-        override fun areItemsTheSame(oldItem: PeopleModel, newItem: PeopleModel): Boolean {
+    private object DiffUtil : ItemCallback<PeopleItem>() {
+        override fun areItemsTheSame(oldItem: PeopleItem, newItem: PeopleItem): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: PeopleModel, newItem: PeopleModel): Boolean {
+        override fun areContentsTheSame(oldItem: PeopleItem, newItem: PeopleItem): Boolean {
             return oldItem == newItem
+        }
+
+        override fun getChangePayload(oldItem: PeopleItem, newItem: PeopleItem): Any? {
+            return if (oldItem.isFavouritesOnlyDifferent(newItem)) UPDATE_FAVOURITE else null
         }
     }
 }

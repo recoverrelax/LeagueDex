@@ -33,8 +33,7 @@ class FetchAndUpdatePeople @Inject constructor(
                 // let's consider just 1 for now
                 // TODO: support multiple species
                 specieId = people.species.firstOrNull()
-                    ?.let { SwapApiParser.parseIdFromUrl(it, IdType.SPECIES) },
-                isFavourite = false
+                    ?.let { SwapApiParser.parseIdFromUrl(it, IdType.SPECIES) }
             )
         }
         peopleStore.insertAllPeople(personEntities)

@@ -24,7 +24,7 @@ class DataSync @Inject constructor(
         return refreshInfo.shouldUpdate()
     }
 
-    suspend fun sync(forceRefresh: Boolean = false): Flow<UpdateStatus> {
+    fun sync(forceRefresh: Boolean = false): Flow<UpdateStatus> {
         return flow {
             if (!forceRefresh && isSyncNeeded().not()) {
                 emit(UpdateStatus.NONE)
@@ -56,7 +56,6 @@ class DataSync @Inject constructor(
 
     private fun SettingsEntity?.shouldUpdate(): Boolean {
         if (this == null) return true
-        val last: Long = this.lastRefresh
-        return System.currentTimeMillis() + REFRESH_TIMEOUT <= last
+        return this.lastRefresh + REFRESH_TIMEOUT <= System.currentTimeMillis()
     }
 }

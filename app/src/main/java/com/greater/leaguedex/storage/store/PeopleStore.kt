@@ -3,9 +3,11 @@ package com.greater.leaguedex.storage.store
 import com.greater.leaguedex.Database
 import com.greater.leaguedex.storage.util.QueryType
 import com.greater.leaguedex.storage.util.toSqlOrder
+import com.squareup.sqldelight.Query
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import tables.PeopleEntity
+import tables.PeopleFavouritesEntity
 import tables.PeopleQueries
 import tables.PeopleVehicles
 import tables.PeopleWithLanguageAndVehicles
@@ -18,11 +20,8 @@ class PeopleStore @Inject constructor(
 ) {
     private val queries: PeopleQueries = database.peopleQueries
 
-    suspend fun getAllWithLanguage(queryType: QueryType, query: String?, limit: Long): List<PeopleWithLanguageAndVehicles> =
-        withContext(Dispatchers.IO) {
-            queries.peopleWithLanguage(queryType.toSqlOrder(), query ?: "", limit)
-                .executeAsList()
-        }
+    fun getAllWithLanguage(queryType: QueryType, query: String?, limit: Long): Query<PeopleWithLanguageAndVehicles> =
+        queries.peopleWithLanguage(queryType.toSqlOrder(), query ?: "", limit)
 
     suspend fun insertAllPeople(data: List<PeopleEntity>) = withContext(Dispatchers.IO) {
         database.transaction {
@@ -31,7 +30,7 @@ class PeopleStore @Inject constructor(
     }
 
     suspend fun updateFavourite(peopleId: Long, isFavourite: Boolean) = withContext(Dispatchers.IO) {
-        queries.updateFavourite(isFavourite, peopleId)
+        queries.insertOrReplaceFavourite(PeopleFavouritesEntity(peopleId, isFavourite))
     }
 
     suspend fun insertAllPeopleVehicles(data: List<PeopleVehicles>) = withContext(Dispatchers.IO) {

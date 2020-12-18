@@ -14,10 +14,6 @@ class VehiclesStore @Inject constructor(
 ) {
     private val queries: VehicleQueries = database.vehicleQueries
 
-    suspend fun getAllById(vehicleId: Long): List<VehicleEntity> = withContext(Dispatchers.IO) {
-        queries.getAllByID(vehicleId).executeAsList()
-    }
-
     suspend fun insertAll(vehicles: List<VehicleEntity>) = withContext(Dispatchers.IO) {
         database.transaction {
             vehicles.onEach { queries.insert(it) }

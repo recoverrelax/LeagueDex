@@ -1,6 +1,7 @@
 package com.greater.leaguedex.mvvm
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,7 +19,7 @@ open class BaseViewModel<S : BaseViewStates> : ViewModel() {
 
     protected fun postEvent(event: S) {
         Timber.i("Posted event: $event")
-        viewScope.launch { _viewState.emit(event) }
+        viewModelScope.launch { _viewState.emit(event) }
     }
 
     override fun onCleared() {

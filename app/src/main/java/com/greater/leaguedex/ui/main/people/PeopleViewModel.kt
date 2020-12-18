@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.greater.leaguedex.mvvm.BaseViewModel
@@ -13,6 +14,7 @@ import com.greater.leaguedex.storage.store.PeopleStore
 import com.greater.leaguedex.ui.main.app.DataSync
 import com.greater.leaguedex.util.UpdateStatus
 import com.greater.leaguedex.util.parser.AvatarImageParser
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flatMapLatest
@@ -23,10 +25,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import tables.PeopleWithLanguageAndVehicles
-import javax.inject.Provider
 
 class PeopleViewModel @ViewModelInject constructor(
-    peopleDataSource: Provider<PeopleDataSource>,
     private val peopleStore: PeopleStore,
     private val dataSync: DataSync,
     @Assisted private val savedStateHandle: SavedStateHandle
@@ -34,10 +34,9 @@ class PeopleViewModel @ViewModelInject constructor(
 
     private val STATE_KEY = "PeopleViewModel.STATE_KEY"
 
-    private val peopleList = Pager(
-        initialKey = "Grievous",
+    private val peopleList: Flow<PagingData<PeopleItem>> = Pager(
         config = PagingConfig(pageSize = 10, enablePlaceholders = false)
-    ) { peopleDataSource.get() }
+    ) { PeopleDataSource(peopleStore) }
         .flow
         .map { pagingData -> pagingData.map { mapToModel(it) } }
         .cachedIn(viewModelScope)
@@ -51,7 +50,7 @@ class PeopleViewModel @ViewModelInject constructor(
                 .flatMapLatest { dataSync.sync(forceRefresh = false) }
                 .mapNotNull(::mapToViewStates)
                 .onEach { postEvent(it) }
-                .launchIn(viewScope)
+                .launchIn(this)
 
             peopleList
                 .map { PeopleViewStates.UpdateList(data = it) }
@@ -59,7 +58,7 @@ class PeopleViewModel @ViewModelInject constructor(
         }
     }
 
-    private fun mapToViewStates(syncState: UpdateStatus): PeopleViewStates? {
+    private fun mapToViewStates(syncState: UpdateStatus): PeopleViewStates {
         return when (syncState) {
             UpdateStatus.FINISHED -> PeopleViewStates.RequestSwipeRefresh(
                 refreshing = false,
@@ -71,8 +70,8 @@ class PeopleViewModel @ViewModelInject constructor(
         }
     }
 
-    private fun mapToModel(people: PeopleWithLanguageAndVehicles): PeopleModel {
-        return PeopleModel(
+    private fun mapToModel(people: PeopleWithLanguageAndVehicles): PeopleItem {
+        return PeopleItem(
             id = people.id,
             name = people.name,
             imageUrl = AvatarImageParser.buildAvatarUrl(
@@ -81,7 +80,7 @@ class PeopleViewModel @ViewModelInject constructor(
             ),
             language = people.language ?: "na",
             vehicles = people.vehicles,
-            isFavourite = people.isFavourite
+            isFavourite = people.isFavourite ?: false
         )
     }
 
@@ -94,6 +93,6 @@ class PeopleViewModel @ViewModelInject constructor(
     }
 
     fun onFavouriteClicked(itemId: Long, isFavourite: Boolean) {
-        viewModelScope.launch { peopleStore.updateFavourite(itemId, isFavourite) }
+        viewModelScope.launch { peopleStore.updateFavourite(itemId, isFavourite.not()) }
     }
 }

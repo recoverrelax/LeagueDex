@@ -1,8 +1,12 @@
 CREATE TABLE peopleEntity(
     id INTEGER NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
-    specieId INTEGER,
-    isFavourite INTEGER AS Boolean NOT NULL
+    specieId INTEGER
+);
+
+CREATE TABLE peopleFavouritesEntity(
+    peopleId INTEGER NOT NULL PRIMARY KEY,
+    isFavourite INTEGER AS Boolean DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS peopleVehicles(
@@ -11,13 +15,42 @@ CREATE TABLE IF NOT EXISTS peopleVehicles(
     PRIMARY KEY (peopleId, vehicleId)
 );
 
+CREATE TRIGGER DeletePeopleVehiclesForPeopleId
+AFTER DELETE ON peopleEntity
+FOR EACH ROW
+BEGIN
+    DELETE FROM peopleVehicles WHERE old.id = peopleVehicles.peopleId;
+END;
+
+CREATE TRIGGER DeletePeopleVehiclesForPeopleIdVehicleId
+AFTER DELETE ON vehicleEntity
+FOR EACH ROW
+BEGIN
+    DELETE FROM peopleVehicles WHERE old.id = peopleVehicles.vehicleId;
+END;
+
+CREATE TRIGGER NullSpecieIdForPeopleEntity
+AFTER DELETE ON specieEntity
+FOR EACH ROW
+BEGIN
+    UPDATE peopleEntity SET specieId = NULL WHERE old.id;
+END;
+
+CREATE TRIGGER DeletePeopleFavourites
+AFTER DELETE ON peopleEntity
+FOR EACH ROW
+BEGIN
+    DELETE FROM peopleFavouritesEntity WHERE old.id = peopleFavouritesEntity.peopleId;
+END;
+
 CREATE VIEW vehiclesByUser AS
 SELECT vehicleEntity.name AS vname, peopleVehicles.peopleId AS pdi FROM peopleVehicles INNER JOIN vehicleEntity ON peopleVehicles.vehicleId == vehicleEntity.id;
 
 CREATE VIEW peopleWithLanguageAndVehicles AS
-SELECT peopleEntity.id, peopleEntity.name, specieEntity.language, peopleEntity.isFavourite, ifnull(GROUP_CONCAT(vname), '') vehicles FROM peopleEntity
+SELECT peopleEntity.id, peopleEntity.name, specieEntity.language, isFavourite, ifnull(GROUP_CONCAT(vname), '') vehicles FROM peopleEntity
 LEFT JOIN specieEntity ON peopleEntity.specieId == specieEntity.id
 LEFT JOIN vehiclesByUser ON peopleEntity.id == pdi
+LEFT JOIN peopleFavouritesEntity ON peopleEntity.id == peopleFavouritesEntity.peopleId
 GROUP BY peopleEntity.id;
 
 peopleWithLanguage:
@@ -40,8 +73,8 @@ INSERT OR REPLACE INTO peopleVehicles VALUES ?;
 insertPeople:
 INSERT OR REPLACE INTO peopleEntity VALUES ?;
 
-updateFavourite:
-UPDATE peopleEntity SET isFavourite = :isFavourite WHERE id = :peopleId;
+insertOrReplaceFavourite:
+INSERT OR REPLACE INTO peopleFavouritesEntity VALUES ?;
 
 getAll:
 SELECT * FROM peopleEntity;
