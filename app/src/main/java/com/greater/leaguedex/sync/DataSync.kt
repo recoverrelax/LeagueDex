@@ -1,4 +1,4 @@
-package com.greater.leaguedex.ui.main.app
+package com.greater.leaguedex.sync
 
 import com.greater.leaguedex.storage.store.SettingStore
 import com.greater.leaguedex.usecase.FetchAndUpdatePeople
@@ -7,7 +7,8 @@ import com.greater.leaguedex.usecase.FetchAndUpdateVehicles
 import com.greater.leaguedex.util.UpdateStatus
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import tables.SettingsEntity
+import kotlinx.coroutines.flow.onEach
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -19,18 +20,16 @@ class DataSync @Inject constructor(
 ) {
     private val REFRESH_TIMEOUT = TimeUnit.HOURS.toMillis(1)
 
-    private suspend fun isSyncNeeded(): Boolean {
-        val refreshInfo = settingStore.getRefreshInfo()
-        return refreshInfo.shouldUpdate()
+    suspend fun isSyncNeeded(): Boolean {
+        return settingStore.getLastRefresh().shouldSync()
     }
 
-    fun sync(forceRefresh: Boolean = false): Flow<UpdateStatus> {
+    fun sync(syncNeeded: Boolean): Flow<UpdateStatus> {
         return flow {
-            if (!forceRefresh && isSyncNeeded().not()) {
-                emit(UpdateStatus.NONE)
+            if (!syncNeeded) {
+                emit(UpdateStatus.FINISHED)
             } else {
                 emit(UpdateStatus.STARTED)
-
                 runCatching {
                     fetchAndUpdatePeople()
                     fetchAndUpdateSpecie()
@@ -45,7 +44,7 @@ class DataSync @Inject constructor(
                     }
                 )
             }
-        }
+        }.onEach { Timber.i("State: $it") }
     }
 
     private suspend fun updateSyncStatusSuccess() {
@@ -54,8 +53,8 @@ class DataSync @Inject constructor(
         )
     }
 
-    private fun SettingsEntity?.shouldUpdate(): Boolean {
+    private fun Long?.shouldSync(): Boolean {
         if (this == null) return true
-        return this.lastRefresh + REFRESH_TIMEOUT <= System.currentTimeMillis()
+        return this + REFRESH_TIMEOUT <= System.currentTimeMillis()
     }
 }

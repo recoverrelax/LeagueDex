@@ -1,7 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Style.LeagueDex.Toolbar" parent="Widget.MaterialComponents.Toolbar">
+        <item name="materialThemeOverlay">@style/Style.LeagueDex.ThemeOverlay.Toolbar</item>
         <item name="android:background">?attr/colorPrimary</item>
         <item name="titleTextColor">@color/white</item>
+    </style>
+
+    <style name="Style.LeagueDex.Snackbar" parent="Widget.MaterialComponents.Snackbar">
+        <item name="materialThemeOverlay">@style/Style.LeagueDex.ThemeOverlay.Snackbar</item>
+        <item name="backgroundOverlayColorAlpha">1</item>
+    </style>
+
+    <style name="Style.LeagueDex.ThemeOverlay.Snackbar" parent="">
+        <item name="colorOnSurface">?attr/colorPrimary</item>
+    </style>
+    <style name="Style.LeagueDex.ThemeOverlay.Toolbar" parent="">
+        <item name="colorControlNormal">@color/white</item>
     </style>
 </resources>

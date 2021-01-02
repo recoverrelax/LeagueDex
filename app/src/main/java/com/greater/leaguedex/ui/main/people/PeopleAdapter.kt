@@ -4,7 +4,7 @@ import android.text.Html
 import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.paging.PagingDataAdapter
+import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil.ItemCallback
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
@@ -14,9 +14,11 @@ import timber.log.Timber
 
 class PeopleAdapter(
     private val onFavouriteClicked: (itemId: Long, isFavourite: Boolean) -> Unit
-) : PagingDataAdapter<PeopleItem, PeopleAdapter.ViewHolder>(DiffUtil) {
+) : PagedListAdapter<PeopleItem, PeopleAdapter.ViewHolder>(DiffUtil) {
 
     object UPDATE_FAVOURITE
+
+    private val IMAGE_SIZE = 210
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(
@@ -29,11 +31,14 @@ class PeopleAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
-        if (payloads.isEmpty()) super.onBindViewHolder(holder, position, payloads)
+        if (payloads.isEmpty()) {
+            onBindViewHolder(holder, position)
+            return
+        }
 
         payloads.forEach { payLoad ->
             payLoad as UPDATE_FAVOURITE
-            getItem(position)?.let { holder.bindFavourite(it) }
+            holder.bindFavourite(getItem(position)!!)
         }
     }
 
@@ -46,10 +51,6 @@ class PeopleAdapter(
         if (position == RecyclerView.NO_POSITION) return
         val item = getItem(position) ?: return
 
-        // we update new state immediately
-        // and dispatch a change to the viewModel
-//        item.isFavourite = item.isFavourite.not()
-//        notifyItemChanged(position, UPDATE_FAVOURITE)
         onFavouriteClicked(item.id, item.isFavourite)
     }
 
@@ -58,26 +59,25 @@ class PeopleAdapter(
 
         init {
             binding.favourite.setOnClickListener {
-                handleFavouriteClick(bindingAdapterPosition)
+                handleFavouriteClick(adapterPosition)
             }
         }
 
         fun bind(peopleItem: PeopleItem) {
-            Timber.i("Bind: $peopleItem")
             val context = binding.root.context
 
             binding.name.text = context.getString(R.string.name_label, peopleItem.name).html()
             binding.language.text =
-                context.getString(R.string.language_label, peopleItem.language).html()
+                context.getString(R.string.language_label, peopleItem.spokenLanguage).html()
             binding.vehicles.text = if (peopleItem.vehicles.isEmpty()) {
                 context.getString(R.string.vehicles_label_none).html()
             } else {
                 context.getString(R.string.vehicles_label, peopleItem.vehicles)
                     .html()
             }
+            bindFavourite(peopleItem)
 
-            binding.favourite.isSelected = peopleItem.isFavourite
-            binding.icon.load(peopleItem.imageUrl) {
+            binding.icon.load(peopleItem.imageUrl(IMAGE_SIZE)) {
                 crossfade(true)
                 fallback(R.drawable.people_icon_default)
                 placeholder(R.drawable.people_icon_default)
@@ -85,8 +85,6 @@ class PeopleAdapter(
         }
 
         fun bindFavourite(peopleItem: PeopleItem) {
-            // map is the source of true
-            // fallback to bind state
             binding.favourite.isSelected = peopleItem.isFavourite
         }
 
@@ -97,10 +95,24 @@ class PeopleAdapter(
 
     private object DiffUtil : ItemCallback<PeopleItem>() {
         override fun areItemsTheSame(oldItem: PeopleItem, newItem: PeopleItem): Boolean {
+            Timber.i(
+                """areItemsTheSame
+                |oldItem: $oldItem
+                |newItem: $newItem
+                |result: ${oldItem.id == newItem.id}
+            """.trimMargin()
+            )
             return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: PeopleItem, newItem: PeopleItem): Boolean {
+            Timber.i(
+                """areContentsTheSame
+                |oldItem: $oldItem
+                |newItem: $newItem
+                |result: ${oldItem == newItem}
+            """.trimMargin()
+            )
             return oldItem == newItem
         }
 

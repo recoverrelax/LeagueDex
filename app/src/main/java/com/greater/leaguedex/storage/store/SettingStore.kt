@@ -24,7 +24,7 @@ class SettingStore @Inject constructor(
         queries.insert(SettingsEntity(SETTING_TABLE_ID, lastRefresh))
     }
 
-    suspend fun getRefreshInfo(): SettingsEntity? = withContext(Dispatchers.IO) {
+    suspend fun getLastRefresh(): Long? = withContext(Dispatchers.IO) {
         queries.refreshInfo().executeAsOneOrNull()
     }
 }

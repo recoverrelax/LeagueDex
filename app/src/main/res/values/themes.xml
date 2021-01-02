@@ -16,5 +16,6 @@
         <!-- Customize your theme here. -->
 
         <item name="toolbarStyle">@style/Style.LeagueDex.Toolbar</item>
+        <item name="snackbarStyle">@style/Style.LeagueDex.Snackbar</item>
     </style>
 </resources>

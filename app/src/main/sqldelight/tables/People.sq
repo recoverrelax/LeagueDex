@@ -67,6 +67,13 @@ SELECT * FROM (
 )
 ORDER BY name;
 
+getPeopleWithLanguageWithLimitOffset:
+SELECT * FROM peopleWithLanguageAndVehicles
+ORDER BY name LIMIT :limit OFFSET :offset;
+
+countPeopleWithLanguage:
+SELECT COUNT(*) FROM peopleWithLanguageAndVehicles;
+
 insertPeopleVehicles:
 INSERT OR REPLACE INTO peopleVehicles VALUES ?;
 

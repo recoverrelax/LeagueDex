@@ -2,16 +2,19 @@ package com.greater.leaguedex.ui.main
 
 import android.os.Bundle
 import androidx.activity.viewModels
+import com.google.android.material.snackbar.Snackbar
 import com.greater.leaguedex.R
 import com.greater.leaguedex.databinding.ActMainBinding
 import com.greater.leaguedex.mvvm.BaseActivity
+import com.greater.leaguedex.ui.main.actions.SnackBarManager
 import com.greater.leaguedex.ui.main.people.PeopleFrag
 import com.greater.leaguedex.ui.main.settings.SettingsFrag
+import com.greater.leaguedex.util.stringFromRes
 import com.greater.leaguedex.util.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainAct : BaseActivity<MainViewModel, MainViewStates>() {
+class MainAct : BaseActivity<MainViewModel, MainViewStates>(), SnackBarManager {
     enum class Screen {
         People,
         Settings
@@ -41,6 +44,16 @@ class MainAct : BaseActivity<MainViewModel, MainViewStates>() {
             navView = binding.bottomNavView,
             initialScreen = Screen.People
         )
+    }
+
+    override fun showSnackBar(text: String, duration: Int) {
+        Snackbar.make(binding.root, text, duration)
+            .apply { anchorView = binding.bottomNavView }
+            .show()
+    }
+
+    override fun showSnackBar(textRes: Int, duration: Int) {
+        showSnackBar(stringFromRes(textRes), duration)
     }
 
     override fun render(viewState: MainViewStates) {}
